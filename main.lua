@@ -13,7 +13,7 @@ function love.load()
 	cam = camera()
 
 	sti = require("libraries/sti")
-	gameMap = sti("maps/testMap.lua")
+	gameMap = sti("maps/map.lua")
 
 	-- Initialize player
 	player = Player:new("sprites/4.png", 500, 200)
@@ -101,7 +101,9 @@ end
 function love.draw()
 	cam:attach()
 	gameMap:drawLayer(gameMap.layers["Ground"])
-	gameMap:drawLayer(gameMap.layers["Trees"])
+	gameMap:drawLayer(gameMap.layers["Props"])
+	gameMap:drawLayer(gameMap.layers["Man"])
+	gameMap:drawLayer(gameMap.layers["Road"])
 	player:draw()
 
 	-- Draw projectiles
