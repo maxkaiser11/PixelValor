@@ -6,6 +6,13 @@ Enemy.__index = Enemy
 function Enemy:new(x, y)
 	local self = setmetatable({}, Enemy)
 
+	self.spriteSheet = love.graphics.newImage("sprites/Run.png")
+	self.grid = anim8.newGrid(64, 64, self.spriteSheet:getWidth(), self.spriteSheet:getHeight())
+
+	self.animations = {}
+	self.animations.run = anim8.newAnimation(self.grid("1-6", 1), 0.2)
+	self.anim = self.animations.run
+
 	self.x = x
 	self.y = y
 	self.width = 50
@@ -20,9 +27,7 @@ function Enemy:update(dt)
 end
 
 function Enemy:draw()
-	love.graphics.setColor(1, 0, 0)
-	love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
-	love.graphics.setColor(1, 1, 1)
+	self.anim:draw(self.spriteSheet, self.x, self.y, nil, 1.5, 1.5, 32, 32)
 end
 
 return Enemy
