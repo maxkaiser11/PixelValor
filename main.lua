@@ -2,6 +2,7 @@
 local love = require("love")
 local Player = require("source/Player")
 local Projectile = require("source/Projectile")
+local Enemy = require("source/Enemy")
 
 function love.load()
 	love.window.setTitle("PixelValor")
@@ -15,11 +16,14 @@ function love.load()
 	gameMap = sti("maps/testMap.lua")
 
 	-- Initialize player
-	player = Player:new("sprites/4.png", 300, 400)
+	player = Player:new("sprites/4.png", 500, 200)
 
 	-- Initialize projectile table
 	projectiles = {}
 	projectileSpeed = 300
+
+	enemies = {}
+	table.insert(enemies, Enemy:new(700, 200))
 end
 
 function love.update(dt)
@@ -35,6 +39,11 @@ function love.update(dt)
 		if projectile:isFinished() then
 			table.remove(projectiles, i)
 		end
+	end
+
+	-- update enemies
+	for _, enemy in ipairs(enemies) do
+		enemy:update(dt)
 	end
 
 	cam:lookAt(player.x, player.y)
@@ -89,6 +98,10 @@ function love.draw()
 	-- Draw projectiles
 	for _, projectile in ipairs(projectiles) do
 		projectile:draw()
+	end
+
+	for _, enemy in ipairs(enemies) do
+		enemy:draw()
 	end
 	cam:detach()
 end
