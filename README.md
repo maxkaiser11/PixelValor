@@ -10,26 +10,6 @@
 - **Dynamic Combat**: Strategic turn-based combat that challenges your tactical skills.
 - **Rich World**: Explore dungeons, forests, villages, and other diverse environments, each filled with secrets and treasures.
 
-## Installation
-
-1. Clone this repository:
-   ```
-   git clone https://github.com/yourusername/PixelValor.git
-   ```
-2. Navigate to the project directory:
-   ```
-   cd PixelValor
-   ```
-3. Open the solution file (`PixelValor.sln`) in **Visual Studio** or **MonoDevelop**.
-4. Restore the required **NuGet** packages.
-5. Build and run the game.
-
-## Requirements
-
-- **MonoGame 3.8**
-- **.NET 6 SDK**
-- **Visual Studio** or **MonoDevelop**
-
 ## Controls
 
 - **Arrow Keys**: Move your character.
