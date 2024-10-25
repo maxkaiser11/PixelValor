@@ -82,7 +82,7 @@ function love.update(dt)
 		projectile.animation:update(dt)
 
 		-- Remove projectiles if it goes off-screen
-		if projectile.x > love.graphics.getWidth() or projectile.x < 0 then
+		if projectile.animation.status == "finished" then
 			table.remove(projectiles, i)
 		end
 	end
