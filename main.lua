@@ -35,6 +35,15 @@ function love.update(dt)
 		local projectile = projectiles[i]
 		projectile:update(dt)
 
+		for j = #enemies, 1, -1 do
+			local enemy = enemies[j]
+			if projectile:checkCollision(enemy) then
+				table.remove(projectile, i)
+				table.remove(enemies, j)
+				break
+			end
+		end
+
 		-- Remove projectiles if animation is finished
 		if projectile:isFinished() then
 			table.remove(projectiles, i)
