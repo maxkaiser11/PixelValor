@@ -46,7 +46,7 @@ function love.update(dt)
 		for j = #enemies, 1, -1 do
 			local enemy = enemies[j]
 			if projectile:checkCollision(enemy) then
-				enemy:takeDamage(15)
+				enemy:takeDamage(25)
 				shouldRemoveProjectile = true
 				if enemy.health <= 0 then
 					table.remove(enemies, j)

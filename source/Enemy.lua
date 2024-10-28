@@ -17,7 +17,7 @@ function Enemy:new(x, y)
 	self.y = y
 	self.width = 50
 	self.height = 50
-	self.speed = 50
+	self.speed = 35
 	self.health = 50
 
 	return self
