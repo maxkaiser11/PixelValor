@@ -25,6 +25,7 @@ function Player:new(spriteSheetPath, x, y)
 	self.x = x
 	self.y = y
 	self.speed = 100
+	self.health = 100 -- can be adjusted
 
 	return self
 end
@@ -73,11 +74,24 @@ function Player:attack()
 	self.anim:gotoFrame(1)
 end
 
+function Player:takeDamage(amount)
+	self.health = self.health - amount
+	if self.health <= 0 then
+		self.health = 0
+		-- handle player death later
+	end
+end
+
 function Player:draw()
 	local scaleX = self.isFacingRight and 2 or -2
 	local offsetX = self.isFacingRight and 0 or 64
 
 	self.anim:draw(self.spriteSheet, self.x, self.y, nil, scaleX, 2, 32, 32)
+
+	-- Draw health bar
+	love.graphics.setColor(1, 0, 0)
+	love.graphics.rectangle("fill", self.x - 20, self.y - 40, self.health / 100 * 40, 5)
+	love.graphics.setColor(1, 1, 1)
 end
 
 return Player

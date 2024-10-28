@@ -24,6 +24,12 @@ function love.load()
 
 	enemies = {}
 	table.insert(enemies, Enemy:new(700, 200))
+	table.insert(enemies, Enemy:new(300, 300))
+
+	sounds = {}
+	sounds.music = love.audio.newSource("sounds/field_theme_1.wav", "stream")
+
+	sounds.music:play()
 end
 
 function love.update(dt)
@@ -39,7 +45,9 @@ function love.update(dt)
 			local enemy = enemies[j]
 			if projectile:checkCollision(enemy) then
 				table.remove(projectile, i)
-				table.remove(enemies, j)
+				if enemy.health <= 0 then
+					table.remove(enemies, j)
+				end
 				break
 			end
 		end
