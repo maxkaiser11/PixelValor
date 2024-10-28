@@ -28,6 +28,7 @@ function love.load()
 
 	sounds = {}
 	sounds.music = love.audio.newSource("sounds/field_theme_1.wav", "stream")
+	sounds.music:setLooping(true)
 
 	sounds.music:play()
 end
@@ -41,30 +42,27 @@ function love.update(dt)
 		local projectile = projectiles[i]
 		projectile:update(dt)
 
-		local shouldRemoveProjectile = false
-
 		for j = #enemies, 1, -1 do
 			local enemy = enemies[j]
 			if projectile:checkCollision(enemy) then
 				enemy:takeDamage(25)
-				shouldRemoveProjectile = true
-				if enemy.health <= 0 then
-					table.remove(enemies, j)
-				end
+				table.remove(projectiles, i)
 				break
 			end
 		end
 
-		if shouldRemoveProjectile then
-			table.remove(projectiles, i)
-		elseif projectile:isFinished() then
+		if projectile:isFinished() then
 			table.remove(projectiles, i)
 		end
 	end
 
 	-- update enemies
-	for _, enemy in ipairs(enemies) do
+	for i = #enemies, 1, -1 do
+		local enemy = enemies[i]
 		enemy:update(dt)
+		if enemy.toBeRemoved then
+			table.remove(enemies, i)
+		end
 	end
 
 	cam:lookAt(player.x, player.y)
