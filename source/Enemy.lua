@@ -51,7 +51,7 @@ function Enemy:draw()
 
 	-- draw health bar
 	love.graphics.setColor(1, 0, 0)
-	love.graphics.rectangle("fill", self.x - 20, self.y - 10, self.health / 50 * self.width, 5)
+	love.graphics.rectangle("fill", self.x, self.y - 10, self.health / 50 * self.width, 5)
 	love.graphics.setColor(1, 1, 1)
 end
 
