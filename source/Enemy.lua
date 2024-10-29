@@ -30,6 +30,9 @@ function Enemy:new(x, y)
 end
 
 function Enemy:update(dt)
+	if not self.isDying and self:checkCollisionWithPlayer(player) then
+		player:takeDamage(20)
+	end
 	if self.isDying then
 		self.anim:update(dt)
 		if self.anim.status == "paused" then
@@ -63,6 +66,13 @@ function Enemy:takeDamage(amount)
 		self.anim = self.animations.death
 		-- Handle enemy death here
 	end
+end
+
+function Enemy:checkCollisionWithPlayer(player)
+	return self.x < player.x + 32
+		and self.x + self.width > player.x
+		and self.y < player.y + 32
+		and self.y + self.height > player.y
 end
 
 function Enemy:draw()

@@ -27,6 +27,9 @@ function Player:new(spriteSheetPath, x, y)
 	self.speed = 100
 	self.health = 100 -- can be adjusted
 
+	local cooldown = 1.0
+	self.lastDamageTime = -cooldown
+
 	return self
 end
 
@@ -75,7 +78,11 @@ function Player:attack()
 end
 
 function Player:takeDamage(amount)
-	self.health = self.health - amount
+	local currentTime = love.timer.getTime()
+	if currentTime - self.lastDamageTime >= 1 then
+		self.lastDamageTime = currentTime
+		self.health = self.health - amount
+	end
 	if self.health <= 0 then
 		self.health = 0
 		-- handle player death later
