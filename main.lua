@@ -16,7 +16,7 @@ function love.load()
 	gameMap = sti("maps/map.lua")
 
 	-- Initialize player
-	player = Player:new("sprites/4.png", 500, 200)
+	player = Player:new("sprites/4.png", 100, 250)
 
 	-- Initialize projectile table
 	projectiles = {}
@@ -34,6 +34,9 @@ function love.load()
 end
 
 function love.update(dt)
+	if player.health <= 0 then
+		return -- Skip updating if player is dead
+	end
 	gameMap:update(dt)
 	player:update(dt)
 
@@ -89,6 +92,10 @@ function love.update(dt)
 end
 
 function love.keypressed(key)
+	if player.health <= 0 and key == "r" then
+		player = Player:new("sprites/4.png", 100, 250)
+		return
+	end
 	if key == "space" then
 		player:attack()
 
@@ -109,6 +116,19 @@ function love.keypressed(key)
 end
 
 function love.draw()
+	if player.health <= 0 then
+		love.graphics.setColor(1, 0, 0)
+		love.graphics.printf(
+			"Game Over - Press 'R' to Respawn",
+			0,
+			love.graphics.getHeight() / 2 - 10,
+			love.graphics.getWidth(),
+			"center"
+		)
+		love.graphics.setColor(1, 1, 1)
+		return
+	end
+
 	cam:attach()
 	gameMap:drawLayer(gameMap.layers["Ground"])
 	gameMap:drawLayer(gameMap.layers["Props"])

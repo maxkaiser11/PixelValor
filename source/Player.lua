@@ -15,7 +15,7 @@ function Player:new(spriteSheetPath, x, y)
 	self.animations = {}
 	self.animations.idle = anim8.newAnimation(self.grid("1-6", 1), 0.2)
 	self.animations.walkRight = anim8.newAnimation(self.grid("1-6", 2), 0.2)
-	self.animations.die = anim8.newAnimation(self.grid("1-6", 3), 0.2)
+	self.animations.die = anim8.newAnimation(self.grid("1-6", 3), 0.3, "pauseAtEnd")
 	self.animations.attack = anim8.newAnimation(self.grid("1-6", 4), 0.1)
 
 	self.anim = self.animations.idle
@@ -34,6 +34,14 @@ function Player:new(spriteSheetPath, x, y)
 end
 
 function Player:update(dt)
+	if self.health <= 0 then
+		if self.anim ~= self.animations.die then
+			self.anim = self.animations.die
+			self.anim:gotoFrame(1)
+		end
+		self.anim:update(dt)
+		return
+	end
 	if not self.isAttacking then
 		local isMoving = false
 		if love.keyboard.isDown("w") then
@@ -82,10 +90,15 @@ function Player:takeDamage(amount)
 	if currentTime - self.lastDamageTime >= 1 then
 		self.lastDamageTime = currentTime
 		self.health = self.health - amount
-	end
-	if self.health <= 0 then
-		self.health = 0
-		-- handle player death later
+
+		-- Trigger death animation if health reaches zero
+		if self.health <= 0 then
+			self.health = 0
+			if self.anim ~= self.animations.die then
+				self.anim = self.animations.die
+				self.anim:gotoFrame(1) -- Start the death animation from the beginning
+			end
+		end
 	end
 end
 
