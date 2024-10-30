@@ -10,13 +10,19 @@ function Player:new(spriteSheetPath, x, y)
 
 	-- Load player sprite and set up animations
 	self.spriteSheet = love.graphics.newImage(spriteSheetPath)
-	self.grid = anim8.newGrid(64, 64, self.spriteSheet:getWidth(), self.spriteSheet:getHeight())
+	self.grid = anim8.newGrid(80, 80, self.spriteSheet:getWidth(), self.spriteSheet:getHeight())
 
 	self.animations = {}
-	self.animations.idle = anim8.newAnimation(self.grid("1-6", 1), 0.2)
-	self.animations.walkRight = anim8.newAnimation(self.grid("1-6", 2), 0.2)
-	self.animations.die = anim8.newAnimation(self.grid("1-6", 3), 0.3, "pauseAtEnd")
-	self.animations.attack = anim8.newAnimation(self.grid("1-6", 4), 0.1)
+	self.animations.idle = anim8.newAnimation(self.grid("1-5", 1), 0.2)
+	self.animations.idleRight = anim8.newAnimation(self.grid("1-5", 2), 0.2)
+	self.animations.idleLeft = anim8.newAnimation(self.grid("1-5", 2), 0.2):flipH()
+	self.animations.idleUp = anim8.newAnimation(self.grid("1-5", 3), 0.2)
+	self.animations.walk = anim8.newAnimation(self.grid("1-5", 4), 0.2)
+	self.animations.walkUp = anim8.newAnimation(self.grid("1-5", 8), 0.2)
+	self.animations.walkRight = anim8.newAnimation(self.grid("1-5", 6), 0.2)
+	self.animations.walkLeft = anim8.newAnimation(self.grid("1-5", 6), 0.2):flipH()
+	self.animations.die = anim8.newAnimation(self.grid("1-5", 3), 0.3, "pauseAtEnd")
+	self.animations.attack = anim8.newAnimation(self.grid("1-5", 14), 0.1)
 
 	self.anim = self.animations.idle
 	self.isFacingRight = true
@@ -47,12 +53,12 @@ function Player:update(dt)
 		if love.keyboard.isDown("w") then
 			isMoving = true
 			self.y = self.y - self.speed * dt
-			self.anim = self.animations.walkRight
+			self.anim = self.animations.walkUp
 		end
 		if love.keyboard.isDown("s") then
 			isMoving = true
 			self.y = self.y + self.speed * dt
-			self.anim = self.animations.walkRight
+			self.anim = self.animations.walk
 		end
 		if love.keyboard.isDown("d") then
 			isMoving = true
@@ -63,14 +69,14 @@ function Player:update(dt)
 		if love.keyboard.isDown("a") then
 			isMoving = true
 			self.x = self.x - self.speed * dt
-			self.anim = self.animations.walkRight
+			self.anim = self.animations.walkLeft
 			self.isFacingRight = false
 		end
 		if not isMoving then
 			self.anim = self.animations.idle
 		end
 	else
-		if self.animations.attack.position == #self.grid("1-6", 4) then
+		if self.animations.attack.position == #self.grid("1-5", 14) then
 			self.isAttacking = false
 			self.anim = self.animations.idle
 		end
@@ -79,10 +85,31 @@ function Player:update(dt)
 	self.anim:update(dt)
 end
 
-function Player:attack()
+function Player:attack(enemies)
 	self.isAttacking = true
 	self.anim = self.animations.attack
 	self.anim:gotoFrame(1)
+
+	local attackRange = {
+		x = self.isFacingRight and (self.x + 40) or (self.x - 80),
+		y = self.y,
+		width = 80,
+		height = 80,
+	}
+
+	-- Check for collision with enemies
+	for _, enemy in ipairs(enemies) do
+		if self:checkCollision(attackRange, enemy) then
+			enemy:takeDamage(15)
+		end
+	end
+end
+
+function Player:checkCollision(rect, enemy)
+	return rect.x < enemy.x + enemy.width
+		and rect.x + rect.width > enemy.x
+		and rect.y < enemy.y + enemy.height
+		and rect.y + rect.height > enemy.y
 end
 
 function Player:takeDamage(amount)
@@ -103,10 +130,7 @@ function Player:takeDamage(amount)
 end
 
 function Player:draw()
-	local scaleX = self.isFacingRight and 2 or -2
-	local offsetX = self.isFacingRight and 0 or 64
-
-	self.anim:draw(self.spriteSheet, self.x, self.y, nil, scaleX, 2, 32, 32)
+	self.anim:draw(self.spriteSheet, self.x, self.y, nil, 2, 2, 40, 40)
 
 	-- Draw health bar
 	love.graphics.setColor(1, 0, 0)

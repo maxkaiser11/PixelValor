@@ -1,7 +1,6 @@
 -- main.lua
 local love = require("love")
 local Player = require("source/Player")
-local Projectile = require("source/Projectile")
 local Enemy = require("source/Enemy")
 
 function love.load()
@@ -16,11 +15,9 @@ function love.load()
 	gameMap = sti("maps/map.lua")
 
 	-- Initialize player
-	player = Player:new("sprites/4.png", 100, 250)
+	player = Player:new("sprites/char_1.png", 100, 250)
 
 	-- Initialize projectile table
-	projectiles = {}
-	projectileSpeed = 300
 
 	enemies = {}
 	table.insert(enemies, Enemy:new(700, 200))
@@ -39,25 +36,6 @@ function love.update(dt)
 	end
 	gameMap:update(dt)
 	player:update(dt)
-
-	-- Update projectiles
-	for i = #projectiles, 1, -1 do
-		local projectile = projectiles[i]
-		projectile:update(dt)
-
-		for j = #enemies, 1, -1 do
-			local enemy = enemies[j]
-			if projectile:checkCollision(enemy) then
-				enemy:takeDamage(25)
-				table.remove(projectiles, i)
-				break
-			end
-		end
-
-		if projectile:isFinished() then
-			table.remove(projectiles, i)
-		end
-	end
 
 	-- update enemies
 	for i = #enemies, 1, -1 do
@@ -97,21 +75,7 @@ function love.keypressed(key)
 		return
 	end
 	if key == "space" then
-		player:attack()
-
-		-- Create a new projectile
-		local direction = player.isFacingRight and 1 or -1
-		table.insert(
-			projectiles,
-			Projectile:new(
-				player.spriteSheet,
-				player.grid,
-				player.x + (direction * 32),
-				player.y,
-				direction,
-				projectileSpeed
-			)
-		)
+		player:attack(enemies)
 	end
 end
 
@@ -135,11 +99,6 @@ function love.draw()
 	gameMap:drawLayer(gameMap.layers["Man"])
 	gameMap:drawLayer(gameMap.layers["Road"])
 	player:draw()
-
-	-- Draw projectiles
-	for _, projectile in ipairs(projectiles) do
-		projectile:draw()
-	end
 
 	for _, enemy in ipairs(enemies) do
 		enemy:draw()

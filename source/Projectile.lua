@@ -14,7 +14,7 @@ function Projectile:new(spriteSheet, grid, x, y, direction, speed)
 	self.width = 10
 	self.height = 4
 	self.speed = speed * direction
-	self.animation = anim8.newAnimation(grid("1-6", 6), 0.3)
+	self.animation = anim8.newAnimation(grid("1-5", 6), 0.3)
 
 	return self
 end
