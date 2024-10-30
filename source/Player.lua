@@ -40,6 +40,7 @@ function Player:new(spriteSheetPath, x, y)
 	self.y = y
 	self.speed = 100
 	self.health = 100 -- can be adjusted
+	self.maxHealth = 100
 
 	self.lastDirection = "down"
 
@@ -184,13 +185,17 @@ function Player:takeDamage(amount)
 	end
 end
 
+function Player:drawHealthBar()
+	love.graphics.setColor(0, 0, 0)
+	love.graphics.rectangle("fill", 20, 20, 100, 20)
+
+	-- Draw health amount
+	love.graphics.setColor(1, 0, 0)
+	love.graphics.rectangle("fill", 20, 20, self.health / 100 * 100, 20)
+	love.graphics.setColor(1, 1, 1)
+end
 function Player:draw()
 	self.anim:draw(self.spriteSheet, self.x, self.y, nil, 2, 2, 40, 40)
-
-	-- Draw health bar
-	love.graphics.setColor(1, 0, 0)
-	love.graphics.rectangle("fill", self.x - 20, self.y - 40, self.health / 100 * 40, 5)
-	love.graphics.setColor(1, 1, 1)
 end
 
 return Player

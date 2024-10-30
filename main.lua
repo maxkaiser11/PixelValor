@@ -104,4 +104,5 @@ function love.draw()
 		enemy:draw()
 	end
 	cam:detach()
+	player:drawHealthBar()
 end
