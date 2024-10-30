@@ -8,6 +8,8 @@ function love.load()
 	anim8 = require("libraries/anim8")
 	love.graphics.setDefaultFilter("nearest", "nearest")
 
+	wf = require("libraries/windfield/windfield")
+
 	camera = require("libraries/camera")
 	cam = camera()
 
@@ -28,6 +30,19 @@ function love.load()
 	sounds.music:setLooping(true)
 
 	sounds.music:play()
+
+	trees = {}
+	if gameMap.layers["Trees"] then
+		for i, obj in pairs(gameMap.layers["Trees"].objects) do
+			if obj.width <= 0 or obj.height <= 0 then
+				love.graphics.print("Error: ", 20, 20)
+			else
+				local tree = world:newRectangleCollider(obj.x, obj.y, obj.width, obj.height)
+				tree:setType("static")
+				table.insert(trees, tree)
+			end
+		end
+	end
 end
 
 function love.update(dt)
@@ -67,6 +82,10 @@ function love.update(dt)
 	if cam.y > (mapH - h / 2) then
 		cam.y = (mapH - h / 2)
 	end
+
+	world:update(dt)
+	player.x = player.collider:getX()
+	player.y = player.collider:getY()
 end
 
 function love.keypressed(key)
@@ -99,6 +118,7 @@ function love.draw()
 	gameMap:drawLayer(gameMap.layers["Road"])
 	gameMap:drawLayer(gameMap.layers["Objects"])
 	player:draw()
+	world:draw()
 
 	for _, enemy in ipairs(enemies) do
 		enemy:draw()

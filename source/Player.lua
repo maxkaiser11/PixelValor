@@ -1,6 +1,7 @@
 -- Player.lua
 local love = require("love")
 local anim8 = require("libraries/anim8")
+local wf = require("libraries/windfield/windfield")
 
 local Player = {}
 Player.__index = Player
@@ -42,6 +43,11 @@ function Player:new(spriteSheetPath, x, y)
 	self.health = 100 -- can be adjusted
 	self.maxHealth = 100
 
+	world = wf.newWorld(0, 0)
+
+	self.collider = world:newBSGRectangleCollider(200, 250, 15, 10, 10)
+	self.collider:setFixedRotation(true)
+
 	self.lastDirection = "down"
 
 	local cooldown = 1.0
@@ -79,32 +85,38 @@ function Player:update(dt)
 		end
 	else
 		local isMoving = false
+
+		local vx = 0
+		local vy = 0
+
 		if love.keyboard.isDown("w") then
 			isMoving = true
-			self.y = self.y - self.speed * dt
+			vy = self.speed * -1
 			self.anim = self.animations.walkUp
 			self.lastDirection = "up"
 		end
 		if love.keyboard.isDown("s") then
 			isMoving = true
-			self.y = self.y + self.speed * dt
+			vy = self.speed
 			self.anim = self.animations.walk
 			self.lastDirection = "down"
 		end
 		if love.keyboard.isDown("d") then
 			isMoving = true
-			self.x = self.x + self.speed * dt
+			vx = self.speed
 			self.anim = self.animations.walkRight
 			self.isFacingRight = true
 			self.lastDirection = "right"
 		end
 		if love.keyboard.isDown("a") then
 			isMoving = true
-			self.x = self.x - self.speed * dt
+			vx = self.speed * -1
 			self.anim = self.animations.walkLeft
 			self.isFacingRight = false
 			self.lastDirection = "left"
 		end
+		player.collider:setLinearVelocity(vx, vy)
+
 		if not isMoving then
 			if self.lastDirection == "up" then
 				self.anim = self.animations.idleUp
