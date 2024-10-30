@@ -13,16 +13,24 @@ function Player:new(spriteSheetPath, x, y)
 	self.grid = anim8.newGrid(80, 80, self.spriteSheet:getWidth(), self.spriteSheet:getHeight())
 
 	self.animations = {}
-	self.animations.idle = anim8.newAnimation(self.grid("1-5", 1), 0.2)
+	-- Idle Animations
+	self.animations.idleDown = anim8.newAnimation(self.grid("1-5", 1), 0.2)
 	self.animations.idleRight = anim8.newAnimation(self.grid("1-5", 2), 0.2)
 	self.animations.idleLeft = anim8.newAnimation(self.grid("1-5", 2), 0.2):flipH()
 	self.animations.idleUp = anim8.newAnimation(self.grid("1-5", 3), 0.2)
+
+	-- Walk Animations
 	self.animations.walk = anim8.newAnimation(self.grid("1-5", 4), 0.2)
 	self.animations.walkUp = anim8.newAnimation(self.grid("1-5", 8), 0.2)
 	self.animations.walkRight = anim8.newAnimation(self.grid("1-5", 6), 0.2)
 	self.animations.walkLeft = anim8.newAnimation(self.grid("1-5", 6), 0.2):flipH()
 	self.animations.die = anim8.newAnimation(self.grid("1-5", 3), 0.3, "pauseAtEnd")
-	self.animations.attack = anim8.newAnimation(self.grid("1-5", 14), 0.1)
+
+	-- Attack Animations
+	self.animations.attackRight = anim8.newAnimation(self.grid("1-5", 14), 0.1)
+	self.animations.attackLeft = anim8.newAnimation(self.grid("1-5", 14), 0.1):flipH()
+	self.animations.attackUp = anim8.newAnimation(self.grid("1-5", 15), 0.1)
+	self.animations.attackDown = anim8.newAnimation(self.grid("1-5", 13), 0.1)
 
 	self.anim = self.animations.idle
 	self.isFacingRight = true
@@ -32,6 +40,8 @@ function Player:new(spriteSheetPath, x, y)
 	self.y = y
 	self.speed = 100
 	self.health = 100 -- can be adjusted
+
+	self.lastDirection = "down"
 
 	local cooldown = 1.0
 	self.lastDamageTime = -cooldown
@@ -48,54 +58,96 @@ function Player:update(dt)
 		self.anim:update(dt)
 		return
 	end
-	if not self.isAttacking then
+	if self.isAttacking then
+		-- Update attack animation and check if it has ended
+		self.anim:update(dt)
+		if self.anim.position == #self.anim.frames then
+			self.isAttacking = false
+			-- Set back to idle based on last direction
+			if self.lastDirection == "up" then
+				self.anim = self.animations.idleUp
+			elseif self.lastDirection == "down" then
+				self.anim = self.animations.idleDown
+			elseif self.lastDirection == "right" then
+				self.anim = self.animations.idleRight
+			elseif self.lastDirection == "left" then
+				self.anim = self.animations.idleLeft
+			else
+				self.anim = self.animations.idle
+			end
+		end
+	else
 		local isMoving = false
 		if love.keyboard.isDown("w") then
 			isMoving = true
 			self.y = self.y - self.speed * dt
 			self.anim = self.animations.walkUp
+			self.lastDirection = "up"
 		end
 		if love.keyboard.isDown("s") then
 			isMoving = true
 			self.y = self.y + self.speed * dt
 			self.anim = self.animations.walk
+			self.lastDirection = "down"
 		end
 		if love.keyboard.isDown("d") then
 			isMoving = true
 			self.x = self.x + self.speed * dt
 			self.anim = self.animations.walkRight
 			self.isFacingRight = true
+			self.lastDirection = "right"
 		end
 		if love.keyboard.isDown("a") then
 			isMoving = true
 			self.x = self.x - self.speed * dt
 			self.anim = self.animations.walkLeft
 			self.isFacingRight = false
+			self.lastDirection = "left"
 		end
 		if not isMoving then
-			self.anim = self.animations.idle
+			if self.lastDirection == "up" then
+				self.anim = self.animations.idleUp
+			elseif self.lastDirection == "down" then
+				self.anim = self.animations.idleDown
+			elseif self.lastDirection == "right" then
+				self.anim = self.animations.idleRight
+			elseif self.lastDirection == "left" then
+				self.anim = self.animations.idleLeft
+			else
+				self.anim = self.animations.idle
+			end
 		end
-	else
-		if self.animations.attack.position == #self.grid("1-5", 14) then
-			self.isAttacking = false
-			self.anim = self.animations.idle
-		end
+		self.anim:update(dt)
 	end
-
-	self.anim:update(dt)
 end
 
 function Player:attack(enemies)
 	self.isAttacking = true
-	self.anim = self.animations.attack
+
+	if self.lastDirection == "up" then
+		self.anim = self.animations.attackUp
+	end
+	if self.lastDirection == "down" then
+		self.anim = self.animations.attackDown
+	end
+	if self.lastDirection == "right" then
+		self.anim = self.animations.attackRight
+	end
+	if self.lastDirection == "left" then
+		self.anim = self.animations.attackLeft
+	end
 	self.anim:gotoFrame(1)
 
-	local attackRange = {
-		x = self.isFacingRight and (self.x + 40) or (self.x - 80),
-		y = self.y,
-		width = 80,
-		height = 80,
-	}
+	local attackRange
+	if self.anim == self.animations.attackUp then
+		attackRange = { x = self.x, y = self.y - 64, width = 64, height = 64 }
+	elseif self.anim == self.animations.attackDown then
+		attackRange = { x = self.x, y = self.y + 32, width = 64, height = 64 }
+	elseif self.anim == self.animations.attackLeft then
+		attackRange = { x = self.x - 64, y = self.y, width = 64, height = 64 }
+	elseif self.anim == self.animations.attackRight then
+		attackRange = { x = self.x + 32, y = self.y, width = 64, height = 64 }
+	end
 
 	-- Check for collision with enemies
 	for _, enemy in ipairs(enemies) do
@@ -106,6 +158,9 @@ function Player:attack(enemies)
 end
 
 function Player:checkCollision(rect, enemy)
+	if not rect then
+		return
+	end
 	return rect.x < enemy.x + enemy.width
 		and rect.x + rect.width > enemy.x
 		and rect.y < enemy.y + enemy.height

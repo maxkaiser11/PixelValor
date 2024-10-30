@@ -71,7 +71,7 @@ end
 
 function love.keypressed(key)
 	if player.health <= 0 and key == "r" then
-		player = Player:new("sprites/4.png", 100, 250)
+		player = Player:new("sprites/char_1.png", 100, 250)
 		return
 	end
 	if key == "space" then
@@ -94,10 +94,10 @@ function love.draw()
 	end
 
 	cam:attach()
-	gameMap:drawLayer(gameMap.layers["Ground"])
-	gameMap:drawLayer(gameMap.layers["Props"])
-	gameMap:drawLayer(gameMap.layers["Man"])
+	gameMap:drawLayer(gameMap.layers["Base"])
+	gameMap:drawLayer(gameMap.layers["Rocks"])
 	gameMap:drawLayer(gameMap.layers["Road"])
+	gameMap:drawLayer(gameMap.layers["Objects"])
 	player:draw()
 
 	for _, enemy in ipairs(enemies) do
